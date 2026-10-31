@@ -26,11 +26,12 @@ with open(sys.argv[1],'wb') as output:
         'CFBundleName':'Zone51 Control',
         'CFBundleDisplayName':'Zone51 Control',
         'CFBundlePackageType':'APPL',
-        'CFBundleShortVersionString':'1.0.1',
-        'CFBundleVersion':'2',
+        'CFBundleShortVersionString':'1.0.2',
+        'CFBundleVersion':'3',
         'CFBundleIconFile':'AppIcon',
         'LSMinimumSystemVersion':'14.0',
         'LSApplicationCategoryType':'public.app-category.utilities',
+        'LSUIElement':True,
         'NSHighResolutionCapable':True,
         'NSPrincipalClass':'NSApplication'
     },output)

@@ -2,26 +2,42 @@ import AppKit
 import SwiftUI
 
 @main struct Zone51App: App {
-    @State private var model = AppModel()
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
     var body: some Scene {
-        WindowGroup("Zone51 Control", id: "main") {
-            ContentView(model: model).task { model.start() }
+        MenuBarExtra("Zone51 Control", systemImage: "keyboard") {
+            MenuContent(model: appDelegate.model) {
+                appDelegate.settingsWindow.show(model: appDelegate.model)
+            }
         }
-        .defaultSize(width: 1080, height: 780)
-        .windowResizability(.contentMinSize)
-        .commands { CommandGroup(replacing: .newItem) {} }
-        MenuBarExtra("Zone51 Control", systemImage: "keyboard") { MenuContent(model: model) }
+    }
+}
+
+@MainActor private final class AppDelegate: NSObject, NSApplicationDelegate {
+    let model = AppModel()
+    let settingsWindow = SettingsWindowController()
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        model.start()
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        false
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        settingsWindow.show(model: model)
+        return false
     }
 }
 
 private struct MenuContent: View {
     @Bindable var model: AppModel
-    @Environment(\.openWindow) private var openWindow
+    let openSettings: () -> Void
+
     var body: some View {
         Text(model.device?.product ?? "Garnet отключена")
-        Button("Открыть Zone51 Control") {
-            openWindow(id: "main"); NSApp.activate(ignoringOtherApps: true)
-        }
+        Button("Открыть настройки…", action: openSettings)
         Divider()
         Button("Применить сохранённые назначения") { Task { await model.applyMappings() } }
             .disabled(model.device == nil || model.isBusy)
